@@ -5,58 +5,61 @@ const twitterBtn = document.getElementById('twitter');
 const newQuoteBtn = document.getElementById('new-quote');
 const loader = document.getElementById('loader');
 
-// Show Loading
-function loading() {
+function showLoadingSpinner() {
     loader.hidden = false;
     quoteContainer.hidden = true;
 }
 
-// Hide Loading
-function complete() {
-    quoteContainer.hidden = false;
-    loader.hidden = true;
+function removeLoadingSpinner() {
+    if (!loader.hidden) {
+        quoteContainer.hidden = false;
+        loader.hidden = true;
+    }
 }
 
-// Get Quote From API
-// Get Quotes From API
-async function getQuotes() {
-    loading();
-    const apiUrl = 'https://jacintodesign.github.io/quotes-api/data/quotes.json';
+// Get quote from API
+async function getQuote() {
+    showLoadingSpinner();
+    // const proxyURL = 'healthruwords.p.rapidapi.com'
+    const apiURL = 'https://type.fit/api/quotes'
     try {
-      const response = await fetch(apiUrl);
-      apiQuotes = await response.json();
-        // If Author is blank, add 'Unknown'
-        if (data.quoteAuthor === '') {
-            authorText.innerText = 'Unknown';
+        const response = await fetch(apiURL);
+        const allData = await response.json();
+        const quoteNumber = Math.floor(Math.random() * allData.length);
+        const data = allData[quoteNumber];
+        // If author is blank add 'Unknown'
+        if (data.author === '') {
+            authorText.innerHTML = 'Unknown';
         } else {
-            authorText.innerText = data.quoteAuthor;
+            authorText.innerHTML = data.text;
         }
+        authorText.innerHTML = data.author;
         // Reduce font size for long quotes
-        if (data.quoteText.length > 120) {
+        if (data.text.length > 120) {
             quoteText.classList.add('long-quote');
         } else {
             quoteText.classList.remove('long-quote');
         }
-        quoteText.innerText = data.quoteText;
-        // Stop Loader, Show Quote
-        complete();
+        quoteText.innerText = data.text;
+        // Stop loader, show quote
+        removeLoadingSpinner();
     } catch (error) {
         getQuote();
+        // console.log('No quote detected', error);
     }
 }
 
-// Tweet Quote
+// Tweet quote
 function tweetQuote() {
     const quote = quoteText.innerText;
     const author = authorText.innerText;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${quote} - ${author}`;
-    window.open(twitterUrl, '_blank');
+    window.open(twitterUrl, '_blank')
 }
 
-// Event Listeners
+// Event listeners
 newQuoteBtn.addEventListener('click', getQuote);
 twitterBtn.addEventListener('click', tweetQuote);
 
-// On Load
+// On load
 getQuote();
-
